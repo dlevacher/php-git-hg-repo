@@ -1,6 +1,5 @@
 <?php
-
-//namespace PHPHg;
+namespace PHPHg;
 
 class PHPHg_Configuration {
 

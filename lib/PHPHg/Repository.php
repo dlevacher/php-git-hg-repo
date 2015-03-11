@@ -1,5 +1,5 @@
 <?php
-//namespace PHPHg;
+namespace PHPHg;
 
 /**
  * Include the command class
