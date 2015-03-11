@@ -4,8 +4,8 @@ namespace PHPHg;
 /**
  * Include the command class
  */
-require_once(dirname(__FILE__).'/Command.php');
-require_once(dirname(__FILE__).'/Configuration.php');
+require_once(dirname(__FILE__).'/PHPHg_Command.php');
+require_once(dirname(__FILE__).'/PHPHg_Configuration.php');
 
 /**
  * Simple PHP wrapper for Hg repository
