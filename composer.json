@@ -3,14 +3,14 @@
     "type": "library",
     "description": "An object oriented wrapper to run any Git command",
     "version": "1.3",
-    "homepage": "https://github.com/kirbyfr/it-sis.git",
+    "homepage": "https://github.com/kirbyfr/it-sis",
     "keywords": ["git","hg","mercurial"],
     "license": "MIT",
     "authors": [
         {
             "name": "Thibault Duplessis",
             "email": "thibault.duplessis@gmail.com",
-            "homepage": "http://ornicar.github.com"
+            "homepage": "http://ornicar.github.com",
 			
 			"name": "Gabriel Blondeau",
 			"email": "blondeau.gabriel@gmail.com",
