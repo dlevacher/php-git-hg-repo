@@ -1,7 +1,7 @@
 <?php
 namespace PHPHg;
 
-class PHPHg_Configuration {
+class Configuration {
 
     const USER_NAME = 'user.name';
     const USER_EMAIL = 'user.email';

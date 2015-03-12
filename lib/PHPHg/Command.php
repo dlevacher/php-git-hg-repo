@@ -1,6 +1,7 @@
 <?php
+namespace PHPHg;
 
-class PHPGit_Command
+class Command
 {
     /**
      * @var string Real filesystem path of the repository
@@ -32,7 +33,7 @@ class PHPGit_Command
         $this->commandString  = $commandString;
         $this->debug          = $debug;
     }
-
+    
     public function run()
     {
         $commandToRun = sprintf('cd %s && %s', escapeshellarg($this->dir), $this->commandString);
@@ -48,12 +49,12 @@ class PHPGit_Command
         }
 
         if(0 !== $returnVar) {
-            // Git 1.5.x returns 1 when running "git status"
-            if(1 === $returnVar && 0 === strncmp($this->commandString, 'git status', 10)) {
+            // Hg 1.5.x returns 1 when running "hg status"
+            if(1 === $returnVar && 0 === strncmp($this->commandString, 'hg status', 10)) {
                 // it's ok
             }
             else {
-                throw new GitRuntimeException(sprintf(
+                throw new HgRuntimeException(sprintf(
                     'Command %s failed with code %s: %s',
                     $commandToRun,
                     $returnVar,
@@ -65,5 +66,4 @@ class PHPGit_Command
         return trim($output);
     }
 }
-
-class GitRuntimeException extends RuntimeException {}
+class HgRuntimeException extends \RuntimeException {}
