@@ -1,7 +1,7 @@
 <?php
 namespace PHPHg;
 
-class PHPHg_Configuration {
+class Configuration {
 
     const USER_NAME = 'user.name';
     const USER_EMAIL = 'user.email';
@@ -14,11 +14,11 @@ class PHPHg_Configuration {
 
     /**
      * Holds the Git repository instance.
-     * @var PHPHg_Repository
+     * @var Repository
      */
     protected $repository;
 
-    public function __construct(PHPHg_Repository $hgRepo) {
+    public function __construct(Repository $hgRepo) {
         $this->repository = $hgRepo;
     }
 

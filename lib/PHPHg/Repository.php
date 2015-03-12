@@ -1,11 +1,9 @@
 <?php
 namespace PHPHg;
 
-/**
- * Include the command class
- */
-require_once(dirname(__FILE__).'/PHPHg_Command.php');
-require_once(dirname(__FILE__).'/PHPHg_Configuration.php');
+
+use PHPHg\Command;
+use PHPHg\Configuration;
 
 /**
  * Simple PHP wrapper for Hg repository
@@ -18,7 +16,7 @@ require_once(dirname(__FILE__).'/PHPHg_Configuration.php');
  * Documentation: http://github.com/ornicar/php-git-repo/blob/master/README.markdown
  * Tickets:       http://github.com/ornicar/php-git-repo/issues
  */
-class PHPHg_Repository
+class Repository
 {
     /**
      * @var string  local repository directory
@@ -40,7 +38,7 @@ class PHPHg_Repository
     protected $options;
 
     protected static $defaultOptions = array(
-        'command_class'   => 'PHPHg_Command', // class used to create a command
+        'command_class'   => 'Command', // class used to create a command
         'hg_executable'   => '/usr/bin/hg', // path of the executable on the server
         'file_config' => '/.hg/'
     );
@@ -64,11 +62,11 @@ class PHPHg_Repository
     
     /**
      * Get the configuration for current
-     * @return PHPHg_Configuration
+     * @return Configuration
      */
     public function getConfiguration()
     {
-      return new PHPHg_Configuration($this);
+      return new Configuration($this);
     }
     
     /**
@@ -109,7 +107,7 @@ class PHPHg_Repository
     public function checkIsValidHgRepo()
     {
         if(!file_exists($this->dir.'/.hg/hgrc')) {
-            throw new InvalidGitRepositoryDirectoryException($this->dir.' is not a valid Hg repository');
+            throw new InvalidHgRepositoryDirectoryException($this->dir.' is not a valid Hg repository');
         }
     }
     
@@ -153,6 +151,6 @@ class PHPHg_Repository
     }
 }
 
-class InvalidHgRepositoryDirectoryException extends InvalidArgumentException
+class InvalidHgRepositoryDirectoryException extends \InvalidArgumentException
 {
 }
