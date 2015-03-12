@@ -21,6 +21,6 @@
         "php": ">=5.2"
     },
     "autoload": {
-        "psr-0": { "PHPGit": "lib/", "PHPHg": "lib/" }
+        "psr-0": { "PHPGit_": "lib/", "PHPHg_": "lib/" }
     }
 }
