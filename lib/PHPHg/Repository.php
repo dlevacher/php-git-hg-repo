@@ -76,7 +76,7 @@ class Repository
      **/
     public function getCommits($nbCommits = 10)
     {
-        $output = $this->hg(sprintf('log -l %d', $nbCommits));
+        $output = $this->cmd(sprintf('log -l %d', $nbCommits));
         return $output;
     }
 
@@ -87,7 +87,7 @@ class Repository
      **/
     public function pull($options = "")
     {
-        $output = $this->hg(sprintf('pull %d', $options));
+        $output = $this->cmd(sprintf('pull %d', $options));
         return $output;
     }
     /**
@@ -97,7 +97,7 @@ class Repository
      **/
     public function update($options = "")
     {
-        $output = $this->hg(sprintf('update %d', $options));
+        $output = $this->cmd(sprintf('update %d', $options));
         return $output;
     }
     
@@ -118,7 +118,7 @@ class Repository
      * @param   string  $commandString
      * @return  string  $output
      */
-    public function hg($commandString)
+    public function cmd($commandString)
     {
         // clean commands that begin with "git "
         $commandString = preg_replace('/^hg\s/', '', $commandString);

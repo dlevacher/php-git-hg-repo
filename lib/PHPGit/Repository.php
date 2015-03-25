@@ -69,7 +69,7 @@ class Repository
      */
     public function getDifferenceBetweenBranches($targetBranch, $sourceBranch)
     {
-    	$output = $this->git(sprintf('log %s..%s --date=%s --format=format:%s', $targetBranch, $sourceBranch, $this->dateFormat, $this->logFormat));
+    	$output = $this->cmd(sprintf('log %s..%s --date=%s --format=format:%s', $targetBranch, $sourceBranch, $this->dateFormat, $this->logFormat));
     	return $this->parseLogsIntoArray($output);
     }
 
@@ -132,7 +132,7 @@ class Repository
      */
     public function getBranches($flags='')
     {
-        return array_filter(preg_replace('/[\s\*]/', '', explode("\n", $this->git('branch '.$flags))));
+        return array_filter(preg_replace('/[\s\*]/', '', explode("\n", $this->cmd('branch '.$flags))));
     }
 
     /**
@@ -142,7 +142,7 @@ class Repository
      */
     public function getCurrentBranch()
     {
-        $output = $this->git('branch');
+        $output = $this->cmd('branch');
 
         foreach(explode("\n", $this->git('branch')) as $branchLine) {
             if('*' === $branchLine{0}) {
@@ -168,7 +168,7 @@ class Repository
      */
     public function getTags()
     {
-        $output = $this->git('tag');
+        $output = $this->cmd('tag');
         return $output ? array_filter(explode("\n", $output)) : array();
     }
 
@@ -179,7 +179,7 @@ class Repository
      **/
     public function getCommits($nbCommits = 10)
     {
-        $output = $this->git(sprintf('log -n %d --date=%s --format=format:%s', $nbCommits, $this->dateFormat, $this->logFormat));
+        $output = $this->cmd(sprintf('log -n %d --date=%s --format=format:%s', $nbCommits, $this->dateFormat, $this->logFormat));
         return $this->parseLogsIntoArray($output);
     }
     
@@ -228,7 +228,7 @@ class Repository
      * @param   string  $commandString
      * @return  string  $output
      */
-    public function git($commandString)
+    public function cmd($commandString)
     {
         // clean commands that begin with "git "
         $commandString = preg_replace('/^git\s/', '', $commandString);

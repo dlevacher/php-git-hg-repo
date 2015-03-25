@@ -53,7 +53,7 @@ class Configuration
             }
 
             try {
-                $optionValue = $this->repository->git(sprintf('config --get ' . $configOption));
+                $optionValue = $this->repository->cmd(sprintf('config --get ' . $configOption));
                 $this->configuration[$configOption] = $optionValue;
             } catch (GitRuntimeException $e) {
                 $optionValue = $fallback;
@@ -72,7 +72,7 @@ class Configuration
      */
     public function set($configOption, $configValue)
     {
-        $this->repository->git(sprintf('config --local %s %s', $configOption, $configValue));
+        $this->repository->cmd(sprintf('config --local %s %s', $configOption, $configValue));
         unset($this->configuration[$configOption]);
     }
 
@@ -83,7 +83,7 @@ class Configuration
      */
     public function remove($configOption)
     {
-        $this->repository->git(sprintf('config --local --unset %s', $configOption));
+        $this->repository->cmd(sprintf('config --local --unset %s', $configOption));
         unset($this->configuration[$configOption]);
     }
 
