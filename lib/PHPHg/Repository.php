@@ -103,11 +103,19 @@ class Repository
     /**
      * Check if a directory is a valid Hg repository
      */
-    public function checkIsValidHgRepo()
+    public function checkIsValidRepo()
     {
         if(!file_exists($this->dir.'/.hg/hgrc')) {
             throw new InvalidHgRepositoryDirectoryException($this->dir.' is not a valid Hg repository');
         }
+    }
+    
+    /**
+     * Check current version
+     */
+    public function checkVers($options = "-i"){
+        $output = $this->cmd(sprintf('identify %d',$options));
+        return $output;
     }
     
     /**
