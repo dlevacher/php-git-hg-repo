@@ -38,7 +38,6 @@ class Repository
     protected $options;
 
     protected static $defaultOptions = array(
-        'command_class'   => 'Command', // class used to create a command
         'hg_executable'   => '/usr/bin/hg', // path of the executable on the server
         'file_config' => '/.hg/'
     );
@@ -125,9 +124,9 @@ class Repository
 
         $commandString = $this->options['hg_executable'].' '.$commandString;
 
-        $command = new $this->options['command_class']($this->dir, $commandString, $this->debug);
+        $command = new Command($this->dir, $commandString, $this->debug);
 
-        return $command->runHg();
+        return $command->run();
     }
 
     /**
