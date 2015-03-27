@@ -55,7 +55,7 @@ class Repository
         $this->debug    = $debug;
         $this->options  = array_merge(self::$defaultOptions, $options);
 
-        $this->checkIsValidHgRepo();
+        $this->checkIsValidRepo();
     }
 
     
@@ -114,8 +114,16 @@ class Repository
      * Check current version
      */
     public function checkVers($options = "-i"){
-        $output = $this->cmd(sprintf('identify %d',$options));
+        $output = $this->cmd(sprintf('identify %d', $options));
         return $output;
+    }
+    
+    /**
+     * Check if they are  local files modified
+     */
+    public function checkFiles($options = "-m"){
+        $output = $this->cmd(sprintf('status %d', $options));
+        
     }
     
     /**
