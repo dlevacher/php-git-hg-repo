@@ -96,7 +96,7 @@ class Repository
      **/
     public function update($options = "")
     {
-        $output = $this->cmd(sprintf('update %d', $options));
+        $output = $this->cmd(sprintf('update %s', $options));
         return $output;
     }
     
@@ -114,7 +114,8 @@ class Repository
      * Check current version
      */
     public function checkVers($options = "-i"){
-        $output = $this->cmd(sprintf('identify %d', $options));
+        var_dump("coucou");
+        $output = $this->cmd(sprintf('identify %s', $options));
         return $output;
     }
     
@@ -122,8 +123,8 @@ class Repository
      * Check if they are  local files modified
      */
     public function checkFiles($options = "-m"){
-        $output = $this->cmd(sprintf('status %d', $options));
-        
+        $output = $this->cmd(sprintf('status %s', $options));
+        return $output;
     }
     
     /**
@@ -137,7 +138,7 @@ class Repository
     {
         // clean commands that begin with "git "
         $commandString = preg_replace('/^hg\s/', '', $commandString);
-
+        var_dump($commandString);
         $commandString = $this->options['hg_executable'].' '.$commandString;
 
         $command = new Command($this->dir, $commandString, $this->debug);
