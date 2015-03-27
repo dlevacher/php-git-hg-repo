@@ -115,10 +115,10 @@ class Repository {
      */
     public function checkFiles($options = "-m") {
         $output = $this->cmd(sprintf('status %s', $options));
-        $preg = "/([M][a-zA-Z]{0,})/";
-        $msg = preg_split($preg, $output);
-
-        return $msg;
+        $preg = "/[\s]([A-Z]{1})[\s]/";
+        $output = preg_split($preg, $output);
+        
+        return $output;
     }
 
     /**
