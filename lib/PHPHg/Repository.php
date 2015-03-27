@@ -1,6 +1,6 @@
 <?php
-namespace PHPHg;
 
+namespace PHPHg;
 
 use PHPHg\Command;
 use PHPHg\Configuration;
@@ -16,13 +16,12 @@ use PHPHg\Configuration;
  * Documentation: http://github.com/ornicar/php-git-repo/blob/master/README.markdown
  * Tickets:       http://github.com/ornicar/php-git-repo/issues
  */
-class Repository
-{
+class Repository {
+
     /**
      * @var string  local repository directory
      */
     protected $dir;
-
     protected $dateFormat = 'iso';
     protected $logFormat = '"%H|%T|%an|%ae|%ad|%cn|%ce|%cd|%s"';
 
@@ -36,9 +35,8 @@ class Repository
      * @var array of options
      */
     protected $options;
-
     protected static $defaultOptions = array(
-        'hg_executable'   => '/usr/bin/hg', // path of the executable on the server
+        'hg_executable' => '/usr/bin/hg', // path of the executable on the server
         'file_config' => '/.hg/'
     );
 
@@ -49,32 +47,28 @@ class Repository
      * @param   boolean $debug
      * @param   array $options
      */
-    public function __construct($dir, $debug = false, array $options = array())
-    {
-        $this->dir      = $dir;
-        $this->debug    = $debug;
-        $this->options  = array_merge(self::$defaultOptions, $options);
+    public function __construct($dir, $debug = false, array $options = array()) {
+        $this->dir = $dir;
+        $this->debug = $debug;
+        $this->options = array_merge(self::$defaultOptions, $options);
 
         $this->checkIsValidRepo();
     }
 
-    
     /**
      * Get the configuration for current
      * @return Configuration
      */
-    public function getConfiguration()
-    {
-      return new Configuration($this);
+    public function getConfiguration() {
+        return new Configuration($this);
     }
-    
+
     /**
      * Return the result of `hg log` formatted in a PHP array
      *
      * @return array list of commits and their properties
-     **/
-    public function getCommits($nbCommits = 10)
-    {
+     * */
+    public function getCommits($nbCommits = 10) {
         $output = $this->cmd(sprintf('log -l %d', $nbCommits));
         return $output;
     }
@@ -83,50 +77,58 @@ class Repository
      * Return the result of `hg pull` formatted in a PHP array
      *
      * @return array list of commits and their properties
-     **/
-    public function pull($options = "")
-    {
+     * */
+    public function pull($options = "") {
         $output = $this->cmd(sprintf('pull %d', $options));
         return $output;
     }
+
     /**
      * Return the result of `hg update` formatted in a PHP array
      *
      * @return array list of commits and their properties
-     **/
-    public function update($options = "")
-    {
+     * */
+    public function update($options = "") {
         $output = $this->cmd(sprintf('update %s', $options));
         return $output;
     }
-    
+
     /**
      * Check if a directory is a valid Hg repository
      */
-    public function checkIsValidRepo()
-    {
-        if(!file_exists($this->dir.'/.hg/hgrc')) {
-            throw new InvalidHgRepositoryDirectoryException($this->dir.' is not a valid Hg repository');
+    public function checkIsValidRepo() {
+        if (!file_exists($this->dir . '/.hg/hgrc')) {
+            throw new InvalidHgRepositoryDirectoryException($this->dir . ' is not a valid Hg repository');
         }
     }
-    
+
     /**
      * Check current version
      */
-    public function checkVers($options = "-i"){
-        var_dump("coucou");
+    public function checkVers($options = "-i") {
         $output = $this->cmd(sprintf('identify %s', $options));
         return $output;
     }
-    
+
     /**
      * Check if they are  local files modified
      */
-    public function checkFiles($options = "-m"){
+    public function checkFiles($options = "-m") {
         $output = $this->cmd(sprintf('status %s', $options));
+        $preg = "/([M][a-zA-Z]{0,})/";
+        $msg = preg_split($preg, $output);
+
+        return $msg;
+    }
+
+    /**
+     * Clean local modified files
+     */
+    public function updateClean($options = "-f") {
+        $output = $this->cmd('update %s', $options);
         return $output;
     }
-    
+
     /**
      * Run any hg command, like "status" or "checkout -b mybranch origin/mybranch"
      *
@@ -134,12 +136,11 @@ class Repository
      * @param   string  $commandString
      * @return  string  $output
      */
-    public function cmd($commandString)
-    {
+    public function cmd($commandString) {
         // clean commands that begin with "git "
         $commandString = preg_replace('/^hg\s/', '', $commandString);
         var_dump($commandString);
-        $commandString = $this->options['hg_executable'].' '.$commandString;
+        $commandString = $this->options['hg_executable'] . ' ' . $commandString;
 
         $command = new Command($this->dir, $commandString, $this->debug);
 
@@ -151,22 +152,21 @@ class Repository
      *
      * @return  string  the repository directory
      */
-    public function getDir()
-    {
+    public function getDir() {
         return $this->dir;
     }
-    
+
     /**
      * Get the repository directory
      *
      * @return  string  the repository directory
      */
-    public function getFilleConfig()
-    {
+    public function getFilleConfig() {
         return $this->options['file_config'];
     }
+
 }
 
-class InvalidHgRepositoryDirectoryException extends \InvalidArgumentException
-{
+class InvalidHgRepositoryDirectoryException extends \InvalidArgumentException {
+    
 }

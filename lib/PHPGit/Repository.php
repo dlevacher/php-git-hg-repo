@@ -56,7 +56,7 @@ class Repository
         $this->debug    = $debug;
         $this->options  = array_merge(self::$defaultOptions, $options);
 
-        $this->checkIsValidGitRepo();
+        $this->checkIsValidRepo();
     }
 
 
@@ -144,7 +144,7 @@ class Repository
     {
         $output = $this->cmd('branch');
 
-        foreach(explode("\n", $this->git('branch')) as $branchLine) {
+        foreach(explode("\n", $this->cmd('branch')) as $branchLine) {
             if('*' === $branchLine{0}) {
                 return substr($branchLine, 2);
             }
@@ -214,13 +214,48 @@ class Repository
     /**
      * Check if a directory is a valid Git repository
      */
-    public function checkIsValidGitRepo()
+    public function checkIsValidRepo()
     {
         if(!file_exists($this->dir.'/.git/HEAD')) {
             throw new InvalidGitRepositoryDirectoryException($this->dir.' is not a valid Git repository');
         }
     }
 
+    /**
+     * Return the result of `hg update` formatted in a PHP array
+     *
+     * @return array list of commits and their properties
+     **/
+    public function update($options = "")
+    {
+        $output = $this->cmd(sprintf('checkout %s', $options));
+        return $output;
+    }
+    
+    /**
+     * Check current version
+     */
+    public function checkVers($options = "--max-count=1 --all"){
+        $output = $this->cmd(sprintf('rev-list %s', $options));
+        return $output;
+    }
+    
+    /**
+     * Check if they are  local files modified
+     */
+    public function checkFiles($options = "-m"){
+        $output = $this->cmd(sprintf('ls-files %s', $options));
+        return $output;
+    }
+    
+    /**
+     * Clean local modified files
+     */
+    public function updateClean($options = "-f"){
+        $output = $this->cmd('update %s', $options);
+        return $output;
+    }
+    
     /**
      * Run any git command, like "status" or "checkout -b mybranch origin/mybranch"
      *
