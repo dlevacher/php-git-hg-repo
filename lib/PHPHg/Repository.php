@@ -126,7 +126,7 @@ class Repository {
     /**
      * Clean local modified files
      */
-    public function updateClean($options = "-c") {
+    public function updateClean($options = "-C") {
         $output = $this->cmd('update %s', $options);
         return $output;
     }
