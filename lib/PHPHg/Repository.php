@@ -57,7 +57,7 @@ class Repository {
         
         $this->checkIsValidRepo();
         $config = new Configuration($this);
-        $config->setAccount($this->options['login'],$this->option['password']);
+        $config->setAccount($this->options['login'],$this->options['password']);
     }
 
     /**
