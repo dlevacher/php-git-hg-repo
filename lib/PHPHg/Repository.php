@@ -37,7 +37,10 @@ class Repository {
     protected $options;
     protected static $defaultOptions = array(
         'hg_executable' => '/usr/bin/hg', // path of the executable on the server
-        'file_config' => '/.hg/'
+        'file_config' => '/.hg/',
+        'login' => '',
+        'password' => '',
+        'repository' => ''
     );
 
     /**
@@ -76,7 +79,7 @@ class Repository {
     /**
      * Return the result of `hg pull` formatted in a PHP array
      *
-     * @return array list of commits and their properties
+     * @return test about pulling
      * */
     public function pull($options = "") {
         $output = $this->cmd(sprintf('pull %s', $options));
