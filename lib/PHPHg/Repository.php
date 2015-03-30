@@ -111,7 +111,7 @@ class Repository {
      * Check current version
      */
     public function checkVers($options = "-i") {
-        $output = $this->cmd(sprintf('identify %s', $options));
+        $output = substr($this->cmd(sprintf('identify %s', $options)),0,11);
         return $output;
     }
 
@@ -119,10 +119,7 @@ class Repository {
      * Check if they are  local files modified
      */
     public function checkFiles($options = "-m") {
-        $output = $this->cmd(sprintf('status %s', $options));
-//        $preg = "/[\s]([A-Z]{1})[\s]/";
-//        $output = preg_split($preg, $output);
-        
+        $output = $this->cmd(sprintf('status %s', $options));        
         return $output;
     }
 
@@ -133,7 +130,14 @@ class Repository {
         $output = $this->cmd('update %s', $options);
         return $output;
     }
-
+    
+    /**
+     * Back to last version
+     */
+    public function backupVersion(){
+        $output = $this->cmd("update -r ");
+    }
+    
     /**
      * Run any hg command, like "status" or "checkout -b mybranch origin/mybranch"
      *
@@ -144,7 +148,6 @@ class Repository {
     public function cmd($commandString) {
         // clean commands that begin with "git "
         $commandString = preg_replace('/^hg\s/', '', $commandString);
-        var_dump($commandString);
         $commandString = $this->options['hg_executable'] . ' ' . $commandString;
 
         $command = new Command($this->dir, $commandString, $this->debug);
