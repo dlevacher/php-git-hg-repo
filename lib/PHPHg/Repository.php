@@ -126,7 +126,7 @@ class Repository {
     /**
      * Clean local modified files
      */
-    public function updateClean($options = "-f") {
+    public function updateClean($options = "-c") {
         $output = $this->cmd('update %s', $options);
         return $output;
     }
@@ -136,6 +136,7 @@ class Repository {
      */
     public function backupVersion(){
         $output = $this->cmd("update -r ");
+        return $output;
     }
     
     /**
