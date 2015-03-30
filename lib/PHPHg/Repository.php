@@ -79,7 +79,7 @@ class Repository {
      * @return array list of commits and their properties
      * */
     public function pull($options = "") {
-        $output = $this->cmd(sprintf('pull %d', $options));
+        $output = $this->cmd(sprintf('pull %s', $options));
         return $output;
     }
 
