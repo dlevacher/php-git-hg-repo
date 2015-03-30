@@ -32,7 +32,6 @@ class Configuration {
      */
     public function get() {
         $config = parse_ini_file($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", true);
-        var_dump($config);
         return $config;
     }
 

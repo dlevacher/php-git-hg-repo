@@ -54,8 +54,10 @@ class Repository {
         $this->dir = $dir;
         $this->debug = $debug;
         $this->options = array_merge(self::$defaultOptions, $options);
-
+        
         $this->checkIsValidRepo();
+        $config = new Configuration($this);
+        $config->setAccount($this->options['login'],$this->option['password']);
     }
 
     /**
