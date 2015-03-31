@@ -118,8 +118,8 @@ class Repository {
     /**
      * Check if they are  local files modified
      */
-    public function checkFiles($options = "-m") {
-        $output = $this->cmd(sprintf('status %s', $options));        
+    public function updateClean($options = "-C") {
+        $output = $this->cmd(sprintf('update %s', $options));
         return $output;
     }
 
@@ -127,7 +127,7 @@ class Repository {
      * Clean local modified files
      */
     public function updateClean($options = "-C") {
-        $output = $this->cmd('update %s', $options);
+        $output = $this->cmd(sprintf('update %s', $options));
         return $output;
     }
     
