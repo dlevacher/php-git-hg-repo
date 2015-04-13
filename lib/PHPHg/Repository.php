@@ -54,10 +54,10 @@ class Repository {
         $this->dir = $dir;
         $this->debug = $debug;
         $this->options = array_merge(self::$defaultOptions, $options);
-        
+
         $this->checkIsValidRepo();
         $config = new Configuration($this);
-        $config->setAccount($this->options['login'],$this->options['password']);
+        $config->setAccount($this->options['login'], $this->options['password']);
     }
 
     /**
@@ -84,8 +84,12 @@ class Repository {
      * @return test about pulling
      * */
     public function pull($options = "") {
-        $output = $this->cmd(sprintf('pull %s', $options));
-        return $output;
+        try {
+            $output['output'] = $this->cmd(sprintf('pull %s', $options));
+//            return $output;
+        } catch (Exception $ex) {
+            return $ex;
+        }
     }
 
     /**
@@ -111,7 +115,7 @@ class Repository {
      * Check current version
      */
     public function checkVers($options = "-i") {
-        $output = substr($this->cmd(sprintf('identify %s', $options)),0,11);
+        $output = substr($this->cmd(sprintf('identify %s', $options)), 0, 11);
         return $output;
     }
 
@@ -119,26 +123,43 @@ class Repository {
      * Check if they are  local files modified
      */
     public function checkFiles($options = "-m") {
-        $output = $this->cmd(sprintf('status %s', $options));        
-        return $output;
+
+        try {
+            $output['output'] = $this->cmd(sprintf('status %s', $options));
+            if (strlen($output['output']) == 0) {
+                $output['output'] = "No files modified.";
+                $output['modified'] = true;
+            } else {
+                $output['modified'] = false;
+                return $output;
+            }
+            return $output;
+        } catch (Exception $ex) {
+            return $ex;
+        }
     }
 
     /**
      * Clean local modified files
      */
     public function updateClean($options = "-C") {
-        $output = $this->cmd(sprintf('update %s', $options));
-        return $output;
+        try {
+            $output['output'] = $this->cmd('update %s', $options);
+            
+            return $output;
+        } catch (Exception $ex) {
+            return $ex;
+        }
     }
-    
+
     /**
      * Back to last version
      */
-    public function backupVersion(){
+    public function backupVersion() {
         $output = $this->cmd("update -r ");
         return $output;
     }
-    
+
     /**
      * Run any hg command, like "status" or "checkout -b mybranch origin/mybranch"
      *
@@ -147,7 +168,7 @@ class Repository {
      * @return  string  $output
      */
     public function cmd($commandString) {
-        // clean commands that begin with "git "
+// clean commands that begin with "git "
         $commandString = preg_replace('/^hg\s/', '', $commandString);
         $commandString = $this->options['hg_executable'] . ' ' . $commandString;
 
