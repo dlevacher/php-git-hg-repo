@@ -76,12 +76,17 @@ class Configuration
         unset($this->configuration[$configOption]);
     }
 
+    public function setOriginUrl($name, $pwd, $path){
+        $this->repository->cmd(sprintf('config remote.origin.url https://%s:%s@%s',$name,$pwd,$path));
+        
+    }
+    
     /**
      * Removes a option from local config
      * 
      * @param string $configOption 
      */
-    public function remove($configOption)
+    public function remove($configOption="remote.origin.url")
     {
         $this->repository->cmd(sprintf('config --local --unset %s', $configOption));
         unset($this->configuration[$configOption]);

@@ -80,21 +80,25 @@ class Repository {
 
     /**
      * Return the result of `hg pull` formatted in a PHP array
-     *
      * @return test about pulling
      * */
-    public function pull($options = "") {
+    public function pull($options = "&& hg update") {
         try {
-            $output['output'] = $this->cmd(sprintf('pull %s', $options));
-//            return $output;
+            $output = $this->cmd(sprintf('pull %s', $options));
+            
+            if(strpos($output['output'], "use 'hg resolve'")){
+                $output['error'] = true;  
+            }               
+            
+            return $output;
         } catch (Exception $ex) {
-            return $ex;
+            $output['error'] = $ex;
+            return $output;
         }
     }
 
     /**
      * Return the result of `hg update` formatted in a PHP array
-     *
      * @return array list of commits and their properties
      * */
     public function update($options = "") {
@@ -115,7 +119,7 @@ class Repository {
      * Check current version
      */
     public function checkVers($options = "-i") {
-        $output = substr($this->cmd(sprintf('identify %s', $options)), 0, 11);
+        $output = substr($this->cmd(sprintf('identify %s', $options))['output'], 0, 11);
         return $output;
     }
 
@@ -125,13 +129,12 @@ class Repository {
     public function checkFiles($options = "-m") {
 
         try {
-            $output['output'] = $this->cmd(sprintf('status %s', $options));
+            $output = $this->cmd(sprintf('status %s', $options));
             if (strlen($output['output']) == 0) {
                 $output['output'] = "No files modified.";
-                $output['modified'] = true;
-            } else {
                 $output['modified'] = false;
-                return $output;
+            } else {
+                $output['modified'] = true;
             }
             return $output;
         } catch (Exception $ex) {
@@ -144,7 +147,7 @@ class Repository {
      */
     public function updateClean($options = "-C") {
         try {
-            $output['output'] = $this->cmd('update %s', $options);
+            $output = $this->cmd(sprintf('update %s', $options));
             
             return $output;
         } catch (Exception $ex) {
@@ -153,10 +156,10 @@ class Repository {
     }
 
     /**
-     * Back to last version
+     * Back to "x" version
      */
-    public function backupVersion() {
-        $output = $this->cmd("update -r ");
+    public function backupVersion($options = "") {
+        $output = $this->cmd(sprintf("hg update -r %s", $options));
         return $output;
     }
 
@@ -171,7 +174,6 @@ class Repository {
 // clean commands that begin with "git "
         $commandString = preg_replace('/^hg\s/', '', $commandString);
         $commandString = $this->options['hg_executable'] . ' ' . $commandString;
-
         $command = new Command($this->dir, $commandString, $this->debug);
 
         return $command->run();
@@ -194,7 +196,17 @@ class Repository {
     public function getFilleConfig() {
         return $this->options['file_config'];
     }
-
+    
+    /*
+     * Set branch
+     * 
+     * @return output
+     */
+    public function setBranch($options = "") {
+        $output = $this->cmd(sprintf("up %s", $options));
+        return $output;
+    }
+    
 }
 
 class InvalidHgRepositoryDirectoryException extends \InvalidArgumentException {

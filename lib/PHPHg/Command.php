@@ -36,14 +36,16 @@ class Command
     
     public function run()
     {
-        $commandToRun = sprintf('cd %s && %s', escapeshellarg($this->dir), $this->commandString);
+        $commandToRun = sprintf('cd %s && %s', escapeshellarg($this->dir), $this->commandString.' --config "ui.merge=internal:fail"');
+        
         if($this->debug) {
             print $commandToRun."\n";
         }
 
         ob_start();
         passthru($commandToRun, $returnVar);
-        $output = ob_get_clean();
+        $output['output'] = trim(ob_get_clean());
+        $output['var'] = $returnVar; 
         if($this->debug) {
             print $output."\n";
         }
@@ -58,12 +60,12 @@ class Command
                     'Command %s failed with code %s: %s',
                     $commandToRun,
                     $returnVar,
-                    $output
+                    $output['output']
                 ), $returnVar);
             }
         }
-
-        return trim($output);
+        
+        return $output;
     }
 }
 class HgRuntimeException extends \RuntimeException {}
