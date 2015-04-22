@@ -36,6 +36,7 @@ class Repository {
      */
     protected $options;
     protected static $defaultOptions = array(
+		'command_class' => 'Command', // class used to create a command
         'hg_executable' => '/usr/bin/hg', // path of the executable on the server
         'file_config' => '/.hg/',
         'login' => '',
