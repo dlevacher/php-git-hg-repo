@@ -37,7 +37,6 @@ class Command
     public function run()
     {
         $commandToRun = sprintf('cd %s && %s', escapeshellarg($this->dir), $this->commandString.' --config "ui.merge=internal:fail"');
-        
         if($this->debug) {
             print $commandToRun."\n";
         }
