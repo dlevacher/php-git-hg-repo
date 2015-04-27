@@ -46,9 +46,6 @@ class Command
         passthru($commandToRun, $returnVar);
         $output['output'] = trim(ob_get_clean());
         
-        echo'output - Command';
-        var_dump($output);
-        
         $output['var'] = $returnVar;
         if($this->debug) {
             print $output."\n";
@@ -56,10 +53,8 @@ class Command
 
         if(0 !== $returnVar) {
             // Git 1.5.x returns 1 when running "git status"
-            echo'0 diff $return';
             if(1 === $returnVar && 0 === strncmp($this->commandString, 'git status', 10)) {
                 // it's ok
-                echo'ok-command';
             }
             else {
                 throw new GitRuntimeException(sprintf(
