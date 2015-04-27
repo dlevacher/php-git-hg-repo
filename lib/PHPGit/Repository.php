@@ -247,9 +247,12 @@ class Repository {
      * */
     public function pull($options = "") {
         try {
+            echo 'pull OK Listener';
             $output = $this->cmd(sprintf('pull %s', $options));
             return $output;
         } catch (Exception $ex) {
+                        echo 'pull NOP Listener';
+
             $output['error'] = $ex;
             return $output;
         }
