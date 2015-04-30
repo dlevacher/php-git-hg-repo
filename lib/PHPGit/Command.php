@@ -48,7 +48,7 @@ class Command
         
         $output['var'] = $returnVar;
         if($this->debug) {
-            print $output."\n";
+            print "Debug : ".$output['output']."\n";
         }
 
         if(0 !== $returnVar) {

@@ -13,8 +13,8 @@ namespace PHPGit;
  * Documentation: http://github.com/ornicar/php-git-repo/blob/master/README.markdown
  * Tickets:       http://github.com/ornicar/php-git-repo/issues
  */
-class Configuration
-{
+class Configuration {
+
     const USER_NAME = 'user.name';
     const USER_EMAIL = 'user.email';
 
@@ -30,8 +30,7 @@ class Configuration
      */
     protected $repository;
 
-    public function __construct(Repository $gitRepo)
-    {
+    public function __construct(Repository $gitRepo) {
         $this->repository = $gitRepo;
     }
 
@@ -43,8 +42,7 @@ class Configuration
      * 
      * @return string
      */
-    public function get($configOption, $fallback = null)
-    {
+    public function get($configOption, $fallback = null) {
         if (isset($this->configuration[$configOption])) {
             $optionValue = $this->configuration[$configOption];
         } else {
@@ -70,26 +68,38 @@ class Configuration
      * @param string $configOption
      * @param mixed  $configValue 
      */
-    public function set($configOption, $configValue)
-    {
+    public function set($configOption, $configValue) {
         $this->repository->cmd(sprintf('config --local %s %s', $configOption, $configValue));
         unset($this->configuration[$configOption]);
     }
 
-    public function setOriginUrl($name, $pwd, $path){
-        $this->repository->cmd(sprintf('config remote.origin.url https://%s:%s@%s',$name,$pwd,$path));
-        
+    public function setOriginUrl($name, $pwd, $path) {
+        $this->repository->cmd(sprintf('config remote.origin.url https://%s:%s@%s', $name, $pwd, $path));
     }
-    
+
     /**
      * Removes a option from local config
      * 
      * @param string $configOption 
      */
-    public function remove($configOption="remote.origin.url")
-    {
+    public function remove($configOption = "remote.origin.url") {
         $this->repository->cmd(sprintf('config --local --unset %s', $configOption));
-        unset($this->configuration[$configOption]);
+
+        //Open file Hgrc
+        $fileConfig = fopen($this->repository->getDir() . "/.git/config", 'r');
+        //Get contents
+        $contents = file_get_contents($this->repository->getDir() . "/.git/config");
+        //Delete [remote "origin"]
+        $contents = str_ireplace('[remote "origin"]', null, $contents);
+        //Delete blanc ligne
+        $contents = trim($contents);
+
+        fclose($fileConfig);
+        //Re-write contents modify in hgrc
+        $fileConfig = fopen($this->repository->getDir() . "/.git/config", 'w+');
+        fwrite($fileConfig, $contents);
+
+        fclose($fileConfig);
     }
 
 }
