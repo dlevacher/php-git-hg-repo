@@ -259,8 +259,8 @@ class Repository {
      * Check current version
      */
     public function checkVers($options = "--max-count=1 --all") {
-        $output = $this->cmd(sprintf('rev-list %s', $options))['output'];
-        return $output;
+        $output = $this->cmd(sprintf('rev-list %s', $options));
+        return $output['output'];
     }
 
     /**

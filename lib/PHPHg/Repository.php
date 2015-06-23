@@ -121,7 +121,8 @@ class Repository {
      * Check current version
      */
     public function checkVers($options = "-i") {
-        $output = substr($this->cmd(sprintf('identify %s', $options))['output'], 0, 11);
+		$output = $this->cmd(sprintf('identify %s', $options));
+        $output = substr($output['output'], 0, 11);
         return $output;
     }
 
