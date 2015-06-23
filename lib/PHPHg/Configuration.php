@@ -48,16 +48,15 @@ class Configuration {
         //Get username and password
         $prefix = $config['paths']['default'];
         preg_match('/([a-zA-Z]{1,}+)(\.)([a-z]{2,4})/', $prefix, $prefix);
-        //Open file Hgrc
-        $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'r');
         //Get contents
         $contents = file_get_contents($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc");
-        //Replace username
-        $contents = str_replace($prefix[0] . '.username =', $prefix[0] . '.username = ' . $username, $contents);
-        //Replace password
-        $contents = str_replace($prefix[0] . '.password = ', $prefix[0] . '.password = ' . $password, $contents);
+		if (count($prefix)) {
+			//Replace username
+			$contents = str_replace($prefix[0] . '.username =', $prefix[0] . '.username = ' . $username, $contents);
+			//Replace password
+			$contents = str_replace($prefix[0] . '.password = ', $prefix[0] . '.password = ' . $password, $contents);
+		}
 
-        fclose($fileConfig);
         //Re-write contents modify in hgrc
         $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'w+');
         fwrite($fileConfig, $contents);
@@ -90,12 +89,13 @@ class Configuration {
         $prefix = $config['paths']['default'];
         preg_match('/([a-zA-Z]{1,}+)(\.)([a-z]{2,4})/', $prefix, $prefix);
 
-        //Open file Hgrc
-        $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'r');
         //Get contents
         $contents = file_get_contents($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc");
 
-        if ($config['paths']['default'] != "") {
+        if (	count($prefix) && isset($config['paths']['default'])
+			&&	isset($config['auth'][$prefix[0] . '.username'])
+			&&	isset($config['auth'][$prefix[0] . '.password']))
+		{
             //Delete username
             $contents = str_replace($prefix[0] . ".username = " . $config['auth'][$prefix[0] . '.username'], $prefix[0] . ".username = ", $contents);
             //Delete password
@@ -104,7 +104,6 @@ class Configuration {
             $contents = str_replace("default = " . $config['paths']['default'], "default = ", $contents);
         }
         
-        fclose($fileConfig);
         //Re-write contents modify in hgrc
         $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'w+');
         fwrite($fileConfig, $contents);
