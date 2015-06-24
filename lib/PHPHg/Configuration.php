@@ -166,21 +166,21 @@ class Configuration {
 					$PHPHg = array("{$this->credentialsName}.prefix" => $auth['prefix']);
 					if (isset($auth['username'])) $PHPHg["{$this->credentialsName}.username"] = $auth['username'];
 					if (isset($auth['password'])) $PHPHg["{$this->credentialsName}.password"] = $auth['password'];
-					$this->set(['PHPHg' => $PHPHg])->save();
+					$this->set(array('PHPHg' => $PHPHg))->save();
 					break;
 				}
 			}
 		}
 		else {
 			// no credentials
-			$this->set(['PHPHg' => []])->save();
+			$this->set(array('PHPHg' => array()))->save();
 		}
 
-		$this->set(['auth' => [
+		$this->set(array('auth' => array(
 			"{$this->credentialsName}.prefix" => $prefix,
 			"{$this->credentialsName}.username" => $username,
 			"{$this->credentialsName}.password" => $password,
-		]])->save();
+		)))->save();
 		
 		return $this;
     }
@@ -195,7 +195,7 @@ class Configuration {
     public function remove() {
 		$this->rm('auth');
 		if ($PHPHg = $this->get('PHPHg'))
-			$this->set(['auth' => $PHPHg]);
+			$this->set(array('auth' => $PHPHg));
 		$this->rm('PHPHg')->save();
 		return $this;
     }
