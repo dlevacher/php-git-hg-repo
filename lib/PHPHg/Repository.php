@@ -57,8 +57,12 @@ class Repository {
 
         $this->checkIsValidRepo();
         $config = new Configuration($this);
-        $config->setPath($options['repository']);
-        $config->setAccount($this->options['login'], $this->options['password']);
+		if (strlen($this->options['repository']) || strlen($this->options['login']) || strlen($this->options['password']))
+			$config->setAccount($this->options['repository'], $this->options['login'], $this->options['password']);
+    }
+
+    public function __destruct() {
+        $this->clearConfiguration();
     }
 
     /**
@@ -67,6 +71,14 @@ class Repository {
      */
     public function getConfiguration() {
         return new Configuration($this);
+    }
+
+    /**
+     * Clear the configuration for current
+     * @return Configuration
+     */
+    public function clearConfiguration() {
+        return $this->getConfiguration()->remove();
     }
 
     /**
@@ -83,9 +95,9 @@ class Repository {
      * Return the result of `hg pull` formatted in a PHP array
      * @return test about pulling
      * */
-    public function pull($options = "&& hg update") {
+    public function pull($options = "-u") {
         try {
-            $output = $this->cmd(sprintf('pull %s', $options));
+            $output = $this->cmd(sprintf('pull %s %s', $options, $this->options['repository']));
             
             if(strpos($output['output'], "use 'hg resolve'") !== false){
                 $output['error'] = true;  
@@ -112,7 +124,7 @@ class Repository {
      * Check if a directory is a valid Hg repository
      */
     public function checkIsValidRepo() {
-        if (!file_exists($this->dir . '/.hg/hgrc')) {
+        if (!file_exists($this->dir . '/.hg')) {
             throw new InvalidHgRepositoryDirectoryException($this->dir . ' is not a valid Hg repository');
         }
     }
@@ -196,7 +208,7 @@ class Repository {
      *
      * @return  string  the repository directory
      */
-    public function getFilleConfig() {
+    public function getFileConfig() {
         return $this->options['file_config'];
     }
     

@@ -14,13 +14,62 @@ class Configuration {
     protected $configuration = array();
 
     /**
-     * Holds the Git repository instance.
+     * Holds the Hg repository instance.
      * @var Repository
      */
     protected $repository;
 
+    /**
+     * Holds the credentials name.
+     * @var credentialsName
+     */
+    protected $credentialsName = null;
+
     public function __construct(Repository $hgRepo) {
         $this->repository = $hgRepo;
+        if (!($this->configuration = @parse_ini_file($this->repository->getDir() . $this->repository->getFileConfig() . "hgrc", true)))
+			$this->configuration = array();
+    }
+	
+	private function arr2ini(array $a, array $parent = array())
+	{
+		$out = '';
+		foreach ($a as $k => $v)
+		{
+			if (is_array($v))
+			{
+				//subsection case
+				//merge all the sections into one array...
+				$sec = array_merge((array) $parent, (array) $k);
+				//add section information to the output
+				$out .= '[' . join('.', $sec) . ']' . PHP_EOL;
+				//recursively traverse deeper
+				$out .= $this->arr2ini($v, $sec) . PHP_EOL;
+			}
+			else
+			{
+				//plain key->value case
+				$out .= "$k = $v" . PHP_EOL;
+			}
+		}
+		return $out;
+	}
+
+    /**
+     * Compute the repository credentials name
+     * 
+     * @return string
+     */
+    protected function computeCredentialsName($prefix = null) {
+		if (!$prefix) {
+			$paths = $this->get('paths');
+			if ($paths && isset($paths['default'])) {
+				$prefix = $paths['default'];
+			}
+		}
+		preg_match('/([http:\/\/|https:\/\/|ssh:\/\/])*(\w@)*([\w\.\-_]{1,}+)/', $prefix, $prefix);
+		if (count($prefix)) return end($prefix);
+		return basename($this->repository->getDir());
     }
 
     /**
@@ -31,83 +80,124 @@ class Configuration {
      * 
      * @return string
      */
-    public function get() {
-        $config = parse_ini_file($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", true);
-        return $config;
+    protected function get($configOption, $fallback = null) {
+		return isset($this->configuration[$configOption]) ? $this->configuration[$configOption] : $fallback;
+    }
+
+    /**
+     * Set a config option
+     * 
+     * @param array $configOption The config option to write
+     * 
+     * @return Configuration
+     */
+    protected function set(array $configOption) {
+        $this->configuration = array_merge($this->configuration, $configOption);
+		return $this;
+    }
+
+    /**
+     * Remove a config option
+     * 
+     * @param string $configOption The config option to write
+     * 
+     * @return Configuration
+     */
+    protected function rm($configOption) {
+		if (isset($this->configuration[$configOption]))
+			unset($this->configuration[$configOption]);
+		return $this;
+    }
+
+    /**
+     * Save the config to file
+     * 
+     * @return boolean
+     */
+    protected function save() {
+        // write contents modify in hgrc
+        if ($fileConfig = @fopen($this->repository->getDir() . $this->repository->getFileConfig() . "hgrc", 'w+')) {
+			$ret = fwrite($fileConfig, $this->arr2ini($this->configuration));
+			fclose($fileConfig);
+			return $ret;
+		}
+		return false;
     }
 
     /**
      * Set or change a *repository* config option
      * 
-     * @param string $configOption
-     * @param mixed  $configValue 
+     * @param string $prefix
+     * @param string $username
+     * @param string $password	
+     * 
+     * @return Configuration
      */
-    public function setAccount($username, $password) {
-        //Get file : hgrc
-        $config = parse_ini_file($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", true);
-        //Get username and password
-        $prefix = $config['paths']['default'];
-        preg_match('/([a-zA-Z]{1,}+)(\.)([a-z]{2,4})/', $prefix, $prefix);
-        //Get contents
-        $contents = file_get_contents($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc");
-		if (count($prefix)) {
-			//Replace username
-			$contents = str_replace($prefix[0] . '.username =', $prefix[0] . '.username = ' . $username, $contents);
-			//Replace password
-			$contents = str_replace($prefix[0] . '.password = ', $prefix[0] . '.password = ' . $password, $contents);
+    public function setAccount($prefix, $username, $password) {
+		$this->credentialsName = $this->computeCredentialsName($prefix);
+		// Looking for existing credentials
+		$credentials = array();
+		if ($auth = $this->get('auth')) {
+			foreach($this->configuration['auth'] as $k => $v) {
+				$pos = strrpos($k, '.'); $attr = substr($k, $pos + 1); $pref = substr($k, 0, $pos);
+				if (!array_key_exists($pref, $credentials)) $credentials[$pref] = array();
+				$credentials[$pref][$attr] = $v;
+			}
+		}
+		if (count($credentials)) {
+			foreach($credentials as $k => $auth) {
+				if (isset($auth['prefix']) && $auth['prefix'] == $prefix) {
+					$this->credentialsName = $k;
+					if (isset($auth['username']) || isset($auth['password'])) {
+						if (	isset($auth['username']) && ($auth['username'] == $username || !strlen($username))
+							&&	isset($auth['password']) && ($auth['password'] == $password || !strlen($username))
+							)
+						{
+							// Same user/password
+							return $this;
+						}
+						else {
+							// user/password DO NOT match
+						}
+					}
+					else {
+						// user/password not defined
+					}
+					$PHPHg = array("{$this->credentialsName}.prefix" => $auth['prefix']);
+					if (isset($auth['username'])) $PHPHg["{$this->credentialsName}.username"] = $auth['username'];
+					if (isset($auth['password'])) $PHPHg["{$this->credentialsName}.password"] = $auth['password'];
+					$this->set(['PHPHg' => $PHPHg])->save();
+					break;
+				}
+			}
+		}
+		else {
+			// no credentials
+			$this->set(['PHPHg' => []])->save();
 		}
 
-        //Re-write contents modify in hgrc
-        $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'w+');
-        fwrite($fileConfig, $contents);
-        fclose($fileConfig);
-    }
-
-    public function setPath($path) {
-        //Open file Hgrc
-        $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'r');
-        //Get contents
-        $contents = file_get_contents($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc");
-        //Delete username
-        $contents = str_replace("default = ", "default = " . $path, $contents);
-
-        //Re-write contents modify in hgrc
-        $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'w+');
-        fwrite($fileConfig, $contents);
-        fclose($fileConfig);
+		$this->set(['auth' => [
+			"{$this->credentialsName}.prefix" => $prefix,
+			"{$this->credentialsName}.username" => $username,
+			"{$this->credentialsName}.password" => $password,
+		]])->save();
+		
+		return $this;
     }
 
     /**
      * Removes a option from local config
      * 
      * @param string $configOption 
+     * 
+     * @return Configuration
      */
     public function remove() {
-        //Get file : hgrc
-        $config = parse_ini_file($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", true);
-        //Get username and password
-        $prefix = $config['paths']['default'];
-        preg_match('/([a-zA-Z]{1,}+)(\.)([a-z]{2,4})/', $prefix, $prefix);
-
-        //Get contents
-        $contents = file_get_contents($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc");
-
-        if (	count($prefix) && isset($config['paths']['default'])
-			&&	isset($config['auth'][$prefix[0] . '.username'])
-			&&	isset($config['auth'][$prefix[0] . '.password']))
-		{
-            //Delete username
-            $contents = str_replace($prefix[0] . ".username = " . $config['auth'][$prefix[0] . '.username'], $prefix[0] . ".username = ", $contents);
-            //Delete password
-            $contents = str_replace($prefix[0] . ".password = " . $config['auth'][$prefix[0] . '.password'], $prefix[0] . ".password = ", $contents);
-            //Delete path
-            $contents = str_replace("default = " . $config['paths']['default'], "default = ", $contents);
-        }
-        
-        //Re-write contents modify in hgrc
-        $fileConfig = fopen($this->repository->getDir() . "" . $this->repository->getFilleConfig() . "hgrc", 'w+');
-        fwrite($fileConfig, $contents);
-        fclose($fileConfig);
+		$this->rm('auth');
+		if ($PHPHg = $this->get('PHPHg'))
+			$this->set(['auth' => $PHPHg]);
+		$this->rm('PHPHg')->save();
+		return $this;
     }
 
 }

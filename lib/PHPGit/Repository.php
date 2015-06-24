@@ -63,6 +63,10 @@ class Repository {
         $config->setOriginUrl($options['login'], $options['password'], $options['repository']);
     }
 
+    public function __destruct() {
+        $this->clearConfiguration();
+    }
+
     /**
      * Helper method to get a list of commits which exist in $sourceBranch that do not yet exist in $targetBranch.
      *
@@ -122,6 +126,14 @@ class Repository {
      */
     public function getConfiguration() {
         return new Configuration($this);
+    }
+
+    /**
+     * Clear the configuration for current
+     * @return Configuration
+     */
+    public function clearConfiguration() {
+        return $this->getConfiguration()->remove();
     }
 
     /**
